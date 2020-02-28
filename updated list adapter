@@ -1,0 +1,116 @@
+package com.example.loginusingfirebase;
+
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.preference.PreferenceGroup;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+
+
+class ListAdapter extends  RecyclerView.Adapter<MyViewHolder> implements View.OnCreateContextMenuListener, ContextMenuInterface {
+
+    private Context context;
+    private List<EmployeePOJO> employeeList;
+    private EmployeePOJO employeePOJO;
+    public String contactNum;
+
+    public ListAdapter(Context context, List<EmployeePOJO> employeeList) {
+        this.context = context;
+        this.employeeList = employeeList;
+    }
+
+
+    @NonNull
+    @Override
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.list_item, null);
+        MyViewHolder viewHolder = new MyViewHolder(view);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(MyViewHolder holder, int position) {
+        employeePOJO = employeeList.get(position);
+        holder.setDetails(employeePOJO.getEmpID(), employeePOJO.getEmpName(), employeePOJO.getEmpDepartment(), employeePOJO.getEmpContactNumber());
+        contactNum = employeePOJO.getEmpContactNumber();
+        holder.contact.setOnCreateContextMenuListener(this);
+
+    }
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+        menu.setHeaderTitle("Contact via");
+        menu.add(0, view.getId(), 0, "Text");//groupId, itemId, order, title
+        menu.add(0, view.getId(), 0, "Call");
+    }
+
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.toString().equals("Text")){
+            Intent i =new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("smsto:"));
+            i.setType("vnd.android-dir/mms-sms");
+            context.startActivity(i);
+            //return true;
+        }
+        else if(item.toString().equals("Call")){
+            Uri u = Uri.parse(contactNum);
+            // Create the intent and set the data for the
+            // intent as the phone number.
+            Intent i = new Intent(Intent.ACTION_DIAL, u);
+            context.startActivity(i);
+            //return true;
+        }
+        return true;
+    }
+
+    @Override
+    public int getItemCount() {
+        return employeeList.size();
+    }
+}
+
+class MyViewHolder extends RecyclerView.ViewHolder {
+
+    View view;
+    public TextView tv1;
+    public TextView tv2;
+    public TextView tv3;
+    public TextView contact;
+    public String contactNum;
+
+    public MyViewHolder(View itemView) {
+        super(itemView);
+        view = itemView;
+        tv1 = itemView.findViewById(R.id.userID);
+        tv2 = itemView.findViewById(R.id.userName);
+        tv3 = itemView.findViewById(R.id.userDepartment);
+        contact = itemView.findViewById(R.id.userContact);
+    }
+
+    public void setDetails(String ID, String name, String department, String contactNumber){
+
+        tv1.setText("Employee ID: " + ID);
+        tv2.setText("Employee Name: "+name);
+        tv3.setText("Employee Dept.: "+ department);
+//        contact.setText("Contact Employee");
+//         contactNum = contactNumber;
+    }
+
+
+}
+
