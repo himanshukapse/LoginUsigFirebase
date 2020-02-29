@@ -21,6 +21,7 @@
         }
         if(item.getTitle().equals("Text")) {
             Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("sms:"+number));
             startActivity(i);
         }
         else if(item.getTitle().equals("Call")){
