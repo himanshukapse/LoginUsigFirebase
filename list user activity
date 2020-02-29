@@ -1,0 +1,32 @@
+  ///////
+  .
+  .
+  listAdapter = new ListAdapter(this, employees);
+        recyclerView.setAdapter(listAdapter);
+        registerForContextMenu(recyclerView);
+
+//        registerForContextMenu(findViewById(R.id.empContactNumber));
+
+    }
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int position = -1;
+        String number;
+        try {
+            position = listAdapter.getPosition();
+            number = listAdapter.getNumber();
+        } catch (Exception e) {
+            //Log.d(TAG, e.getLocalizedMessage(), e);
+            return super.onContextItemSelected(item);
+        }
+        if(item.getTitle().equals("Text")) {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            startActivity(i);
+        }
+        else if(item.getTitle().equals("Call")){
+            Intent i = new Intent(Intent.ACTION_DIAL);
+            i.setData(Uri.parse("tel:"+number));
+            startActivity(i);
+        }
+        return super.onContextItemSelected(item);
+    }
