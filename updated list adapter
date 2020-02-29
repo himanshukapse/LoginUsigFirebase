@@ -20,18 +20,34 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 
-class ListAdapter extends  RecyclerView.Adapter<MyViewHolder> implements View.OnCreateContextMenuListener, ContextMenuInterface {
+class ListAdapter extends  RecyclerView.Adapter<MyViewHolder>{
 
     private Context context;
     private List<EmployeePOJO> employeeList;
     private EmployeePOJO employeePOJO;
     public String contactNum;
+    private int position;
+
+    public int getPosition() {
+        return position;
+    }
+
+    public String getNumber(){
+        return contactNum;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public void setNumber(String num){
+        contactNum = num;
+    }
 
     public ListAdapter(Context context, List<EmployeePOJO> employeeList) {
         this.context = context;
         this.employeeList = employeeList;
     }
-
 
     @NonNull
     @Override
@@ -43,55 +59,33 @@ class ListAdapter extends  RecyclerView.Adapter<MyViewHolder> implements View.On
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(final MyViewHolder holder, int position) {
         employeePOJO = employeeList.get(position);
         holder.setDetails(employeePOJO.getEmpID(), employeePOJO.getEmpName(), employeePOJO.getEmpDepartment(), employeePOJO.getEmpContactNumber());
-        contactNum = employeePOJO.getEmpContactNumber();
-        holder.contact.setOnCreateContextMenuListener(this);
-
+        holder.contact.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                setPosition(getPosition());
+                setNumber(holder.contactNumFromVH);
+                return false;
+            }
+        });
+        setNumber("");
     }
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-        menu.setHeaderTitle("Contact via");
-        menu.add(0, view.getId(), 0, "Text");//groupId, itemId, order, title
-        menu.add(0, view.getId(), 0, "Call");
-    }
-
-
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        if (item.toString().equals("Text")){
-            Intent i =new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse("smsto:"));
-            i.setType("vnd.android-dir/mms-sms");
-            context.startActivity(i);
-            //return true;
-        }
-        else if(item.toString().equals("Call")){
-            Uri u = Uri.parse(contactNum);
-            // Create the intent and set the data for the
-            // intent as the phone number.
-            Intent i = new Intent(Intent.ACTION_DIAL, u);
-            context.startActivity(i);
-            //return true;
-        }
-        return true;
-    }
-
     @Override
     public int getItemCount() {
         return employeeList.size();
     }
 }
 
-class MyViewHolder extends RecyclerView.ViewHolder {
+class MyViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
 
     View view;
     public TextView tv1;
     public TextView tv2;
     public TextView tv3;
     public TextView contact;
-    public String contactNum;
+    public String contactNumFromVH;
 
     public MyViewHolder(View itemView) {
         super(itemView);
@@ -100,6 +94,7 @@ class MyViewHolder extends RecyclerView.ViewHolder {
         tv2 = itemView.findViewById(R.id.userName);
         tv3 = itemView.findViewById(R.id.userDepartment);
         contact = itemView.findViewById(R.id.userContact);
+        contact.setOnCreateContextMenuListener(this);
     }
 
     public void setDetails(String ID, String name, String department, String contactNumber){
@@ -107,10 +102,17 @@ class MyViewHolder extends RecyclerView.ViewHolder {
         tv1.setText("Employee ID: " + ID);
         tv2.setText("Employee Name: "+name);
         tv3.setText("Employee Dept.: "+ department);
-//        contact.setText("Contact Employee");
-//         contactNum = contactNumber;
+        contactNumFromVH = contactNumber;
     }
+//    public String getContactNumFromVH(){
+//        return contactNumFromVH;
+//    }
 
-
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+        menu.setHeaderTitle("Contact via");
+        menu.add(0, view.getId(), 0, "Text");//groupId, itemId, order, title
+        menu.add(0, view.getId(), 0, "Call");
+    }
 }
 
